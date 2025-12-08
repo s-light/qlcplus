@@ -65,6 +65,8 @@ bool DMXUSB::rescanWidgets()
         delete m_widgets.takeFirst();
 
     m_widgets = DMXUSBWidget::widgets();
+    qDebug() << "[dmxusb.cpp rescanWidgets] m_widgets (" << m_widgets.size()
+             << ") : " << m_widgets;
 
     foreach (DMXUSBWidget* widget, m_widgets)
     {

@@ -99,11 +99,15 @@ QList<DMXUSBWidget *> DMXUSBWidget::widgets()
     quint32 input_id = 0;
     quint32 output_id = 0;
 
+    qDebug() << "[dmxusbwidget.cpp widgets()] interfacesList ("
+             << interfacesList.size() << ") :" << interfacesList;
+
 #if defined(FTD2XX)
-    interfacesList.append(FTD2XXInterface::interfaces(interfacesList));
+        interfacesList.append(FTD2XXInterface::interfaces(interfacesList));
 #endif
 #if defined(QTSERIAL)
     interfacesList.append(QtSerialInterface::interfaces(interfacesList));
+    qDebug() << "[dmxusbwidget.cpp widgets()] QTSERIAL";
 #endif
 #if defined(LIBFTDI) || defined(LIBFTDI1)
     interfacesList.append(LibFTDIInterface::interfaces(interfacesList));
@@ -111,9 +115,13 @@ QList<DMXUSBWidget *> DMXUSBWidget::widgets()
 
     QMap <QString, QVariant> types(DMXInterface::typeMap());
 
+    qDebug() << "[dmxusbwidget.cpp widgets()] interfacesList ("
+             << interfacesList.size() << ") :" << interfacesList;
+
     foreach (DMXInterface *iface, interfacesList)
     {
         QString productName = iface->name().toUpper();
+        // qDebug() << iface->name();
 
         // check if protocol must be forced on an interface
         if (types.contains(iface->serial()) == true)
@@ -218,77 +226,66 @@ QList<DMXUSBWidget *> DMXUSBWidget::widgets()
                 input_id += ultra->portFlagsCount(DMXUSBWidget::Input);
                 widgetList << ultra;
             }
-        }
-        else if (productName.contains("DMX USB PRO") || productName.contains("ULTRADMX"))
-        {
-            int ESTAID = 0, DEVID = 0;
-            QByteArray dummy;
-            QString manName, devName;
-            bool isDmxKing = EnttecDMXUSBPro::detectDMXKingDevice(iface, manName, devName, ESTAID, DEVID, dummy);
+        } else if (productName.contains("DMX USB PRO") ||
+                   productName.contains("ULTRADMX") ||
+                   productName.contains("Arduino") ||
+                   productName.contains("DMXUSB")) {
+          int ESTAID = 0, DEVID = 0;
+          QByteArray dummy;
+          QString manName, devName;
+          bool isDmxKing = EnttecDMXUSBPro::detectDMXKingDevice(
+              iface, manName, devName, ESTAID, DEVID, dummy);
 
-            if (isDmxKing)
-            {
-                if (DEVID == ULTRADMX_PRO_DEV_ID)
-                {
-                    EnttecDMXUSBPro *ultra = new EnttecDMXUSBPro(iface, output_id, input_id++);
-                    QList<int> ports;
-                    ports << (DMXUSBWidget::DMX | DMXUSBWidget::Output | DMXUSBWidget::Input);
-                    ports << (DMXUSBWidget::DMX | DMXUSBWidget::Output);
-                    ultra->setPortsMapping(ports);
-                    ultra->setDMXKingMode();
-                    ultra->setRealName(devName);
-                    output_id += 2;
-                    widgetList << ultra;
-                }
-                else
-                {
-                    EnttecDMXUSBPro *pro = new EnttecDMXUSBPro(iface, output_id++);
-                    QList<int> ports;
-                    ports << (DMXUSBWidget::DMX | DMXUSBWidget::Output);
-                    pro->setPortsMapping(ports);
-                    pro->setRealName(devName);
-                    widgetList << pro;
-                }
+          if (isDmxKing) {
+            if (DEVID == ULTRADMX_PRO_DEV_ID) {
+              EnttecDMXUSBPro *ultra =
+                  new EnttecDMXUSBPro(iface, output_id, input_id++);
+              QList<int> ports;
+              ports << (DMXUSBWidget::DMX | DMXUSBWidget::Output |
+                        DMXUSBWidget::Input);
+              ports << (DMXUSBWidget::DMX | DMXUSBWidget::Output);
+              ultra->setPortsMapping(ports);
+              ultra->setDMXKingMode();
+              ultra->setRealName(devName);
+              output_id += 2;
+              widgetList << ultra;
+            } else {
+              EnttecDMXUSBPro *pro = new EnttecDMXUSBPro(iface, output_id++);
+              QList<int> ports;
+              ports << (DMXUSBWidget::DMX | DMXUSBWidget::Output);
+              pro->setPortsMapping(ports);
+              pro->setRealName(devName);
+              widgetList << pro;
             }
-            else
-            {
-                /* This is probably a Enttec DMX USB Pro widget */
-                EnttecDMXUSBPro *pro = new EnttecDMXUSBPro(iface, output_id++, input_id++);
-                pro->setRealName(devName);
-                widgetList << pro;
-            }
-        }
-        else if (productName.contains("DMXIS"))
-        {
-            EnttecDMXUSBPro *pro = new EnttecDMXUSBPro(iface, output_id++);
-            QList<int> ports;
-            ports << (DMXUSBWidget::DMX | DMXUSBWidget::Output);
-            pro->setPortsMapping(ports);
+          } else {
+            /* This is probably a Enttec DMX USB Pro widget */
+            EnttecDMXUSBPro *pro =
+                new EnttecDMXUSBPro(iface, output_id++, input_id++);
+            pro->setRealName(devName);
             widgetList << pro;
-        }
-        else if (productName.contains("USB-DMX512 CONVERTER") == true)
-        {
-            widgetList << new VinceUSBDMX512(iface, output_id++);
-        }
-        else if (iface->vendorID() == DMXInterface::FTDIVID &&
-                 iface->productID() == DMXInterface::DMX4ALLPID)
-        {
-            widgetList << new Stageprofi(iface, output_id++);
+          }
+        } else if (productName.contains("DMXIS")) {
+          EnttecDMXUSBPro *pro = new EnttecDMXUSBPro(iface, output_id++);
+          QList<int> ports;
+          ports << (DMXUSBWidget::DMX | DMXUSBWidget::Output);
+          pro->setPortsMapping(ports);
+          widgetList << pro;
+        } else if (productName.contains("USB-DMX512 CONVERTER") == true) {
+          widgetList << new VinceUSBDMX512(iface, output_id++);
+        } else if (iface->vendorID() == DMXInterface::FTDIVID &&
+                   iface->productID() == DMXInterface::DMX4ALLPID) {
+          widgetList << new Stageprofi(iface, output_id++);
         }
 #if defined(Q_WS_X11) || defined(Q_OS_LINUX) || defined(Q_OS_MACOS)
         else if (iface->vendorID() == DMXInterface::ATMELVID &&
-                 iface->productID() == DMXInterface::NANODMXPID)
-        {
+                 iface->productID() == DMXInterface::NANODMXPID) {
             widgetList << new NanoDMX(iface, output_id++);
-        }
-        else if (iface->vendorID() == DMXInterface::MICROCHIPVID &&
-                 iface->productID() == DMXInterface::EUROLITEPID)
-        {
-            widgetList << new EuroliteUSBDMXPro(iface, output_id++);
+        } else if (iface->vendorID() == DMXInterface::MICROCHIPVID &&
+                   iface->productID() == DMXInterface::EUROLITEPID) {
+          widgetList << new EuroliteUSBDMXPro(iface, output_id++);
         }
 #endif
-        else
-        {
+        else {
             /* This is probably an Open DMX USB widget */
             widgetList << new EnttecDMXUSBOpen(iface, output_id++);
         }

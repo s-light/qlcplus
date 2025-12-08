@@ -89,6 +89,8 @@ public:
     static const int ATMELVID = 0x03EB;      //! Atmel Vendor ID
     static const int MICROCHIPVID = 0x04D8;  //! Microchip Vendor ID
     static const int NXPVID = 0x1FC9;        //! NXP Vendor ID
+    
+
     static const int FTDIPID = 0x6001;       //! FTDI Product ID
     static const int FTDI2PID = 0x6010;      //! FTDI COM485-PLUS2 Product ID
     static const int DMX4ALLPID = 0xC850;    //! DMX4ALL FTDI Product ID
@@ -96,6 +98,10 @@ public:
     static const int EUROLITEPID = 0xFA63;   //! Eurolite USB DMX Product ID
     static const int ELECTROTASPID = 0x0000; //! ElectroTAS USB DMX Product ID
     static const int DMXKINGMAXPID = 0x0094; //! DMXKing ultraDMX MAX Product ID
+
+    // VID and PID here for a Olimex 32u4 -  Arduino Leonardo clone:
+    static const int ARDUINOVID = 0x2341;  //! Arduino Vendor ID
+    static const int LEONARDOPID = 0x8036; //! Arduino Leonardo Product ID
 
     /** Driver types */
     enum Type
