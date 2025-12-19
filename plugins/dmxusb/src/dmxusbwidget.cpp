@@ -219,9 +219,7 @@ QList<DMXUSBWidget *> DMXUSBWidget::widgets()
                 widgetList << ultra;
             }
         }
-        else if (productName.contains("DMX USB PRO") || 
-                 productName.contains("ULTRADMX") || 
-                 productName.contains("Arduino"))
+        else if (productName.contains("DMX USB PRO") || productName.contains("ULTRADMX"))
         {
             int ESTAID = 0, DEVID = 0;
             QByteArray dummy;
