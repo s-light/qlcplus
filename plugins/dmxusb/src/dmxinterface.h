@@ -96,6 +96,9 @@ public:
     static const int EUROLITEPID = 0xFA63;   //! Eurolite USB DMX Product ID
     static const int ELECTROTASPID = 0x0000; //! ElectroTAS USB DMX Product ID
     static const int DMXKINGMAXPID = 0x0094; //! DMXKing ultraDMX MAX Product ID
+    // VID and PID for Olimex 32u4 -  Arduino Leonardo clone:
+    static const int ARDUINOVID = 0x2341;  //! Arduino Vendor ID
+    static const int LEONARDOPID = 0x8036; //! Arduino Leonardo Product ID
 
     /** Driver types */
     enum Type
